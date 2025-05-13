@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シャバナイ外伝ジェネレーター</title>
+    <!-- CSSスタイルをHTML内に直接記述 -->
+    <style>
+        /* === 基本的なbodyスタイル === */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            /* モダンで読みやすいフォント設定 */
+            display: flex;
+            /* Flexboxを使用してコンテンツを中央寄せ */
+            justify-content: center;
+            /* 水平方向の中央寄せ */
+            align-items: center;
+            /* 垂直方向の中央寄せ */
+            min-height: 100vh;
+            /* 画面の高さいっぱいに表示するための最小の高さ */
+            background-color: #f0f2f5;
+            /* 薄いグレーの背景色 */
+            margin: 0;
+            /* ブラウザデフォルトのマージンをリセット */
+            padding: 20px;
+            /* body全体の周囲に余白を設定 */
+            box-sizing: border-box;
+            /* paddingとborderを要素の幅・高さに含める */
+        }
+
+        /* === コンテンツ全体を囲むコンテナのスタイル === */
+        .container {
+            background-color: white;
+            /* コンテナの背景色を白に */
+            padding: 30px 40px;
+            /* コンテナ内部の上下左右の余白 */
+            border-radius: 12px;
+            /* コンテナの角を丸くする */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            /* コンテナに影を付けて立体感を出す */
+            text-align: center;
+            /* コンテナ内のテキストを中央揃え（ボタンなどに影響） */
+            width: 100%;
+            /* コンテナの幅を親要素（body）いっぱいに */
+            max-width: 650px;
+            /* コンテナの最大幅を指定（広がりすぎないように） */
+        }
+
+        /* === 見出し(h1)のスタイル === */
+        h1 {
+            color: #333;
+            /* 文字色を濃いグレーに */
+            margin-bottom: 10px;
+            /* 見出しの下に余白 */
+        }
+
+        /* === 段落(p)の基本スタイル (コンテナ直下など、resultArea外のpタグに主に適用) === */
+        .container>p {
+            /* '.container' の直下の子要素である 'p' タグに限定してスタイルを適用 */
+            color: #555;
+            /* 文字色をグレーに */
+            line-height: 1.6;
+            /* 行の高さを調整して読みやすく */
+            margin-top: 0.5em;
+            /* 段落の上の余白 */
+            margin-bottom: 0.5em;
+            /* 段落の下の余白 */
+        }
+
+
+        /* === APIキー入力セクションのスタイル === */
+        .api-key-section {
+            margin-bottom: 20px;
+            /* セクションの下に余白 */
+            text-align: left;
+            /* セクション内のテキストを左揃えに（ラベルや入力欄のため） */
+        }
+
+        .api-key-section label {
+            display: block;
+            /* ラベルをブロック要素にして改行されるように */
+            margin-bottom: 8px;
+            /* ラベルの下に余白 */
+            color: #333;
+            /* ラベルの文字色 */
+            font-weight: 500;
+            /* ラベルの文字の太さ（少し太く） */
+        }
+
+        .api-key-input-wrapper {
+            /* APIキー入力欄と貼り付けボタンを横並びにするためのラッパー */
+            display: flex;
+            /* Flexboxを使用して子要素を横並びに */
+            align-items: center;
+            /* 子要素を垂直方向中央揃え */
+            gap: 8px;
+            /* 入力欄とボタンの間の隙間 */
+        }
+
+        .api-key-section input[type="password"] {
+            /* APIキー入力欄（パスワード型）のスタイル */
+            flex-grow: 1;
+            /* 入力欄がラッパー内で可能な限り幅を取るように */
+            padding: 10px;
+            /* 入力欄内部の余白 */
+            border: 1px solid #ccc;
+            /* 入力欄の境界線 */
+            border-radius: 6px;
+            /* 入力欄の角を丸く */
+            font-size: 14px;
+            /* 入力欄の文字サイズ */
+            box-sizing: border-box;
+            /* paddingとborderを幅に含める */
+        }
+
+        #pasteApiKeyButton {
+            /* 「貼り付け」ボタンのスタイル */
+            padding: 8px 12px;
+            /* ボタン内部の余白 */
+            font-size: 14px;
+            /* ボタンの文字サイズ */
+            background-color: #6c757d;
+            /* ボタンの背景色（少し控えめなグレー） */
+            color: white;
+            /* ボタンの文字色 */
+            border: none;
+            /* ボタンの境界線なし */
+            border-radius: 6px;
+            /* ボタンの角を丸く */
+            cursor: pointer;
+            /* マウスカーソルを指マークに */
+            transition: background-color 0.2s ease;
+            /* 背景色変更時のアニメーション */
+        }
+
+        #pasteApiKeyButton:hover {
+            /* 「貼り付け」ボタンにマウスオーバーした時のスタイル */
+            background-color: #5a6268;
+            /* 背景色を少し暗く */
+        }
+
+        .api-key-section small {
+            /* APIキー入力欄下の説明文のスタイル */
+            display: block;
+            /* ブロック要素にして改行 */
+            margin-top: 8px;
+            /* 上の要素との間に余白 */
+            font-size: 12px;
+            /* 文字サイズを小さく */
+            color: #777;
+            /* 文字色を薄いグレーに */
+        }
+
+        /* === 使用モデル名表示部分のスタイル === */
+        #modelName {
+            font-weight: bold;
+            /* 太字にする */
+            color: #007bff;
+            /* 青系の色（Bootstrapのprimaryカラーに近い） */
+        }
+
+        /* === ボタンの共通スタイル === */
+        /* （「物語を生成する」ボタンや「続き・完結」ボタンのベースとなるスタイル） */
+        button {
+            color: white;
+            /* 文字色を白に */
+            border: none;
+            /* 境界線なし */
+            padding: 10px 20px;
+            /* ボタン内部の余白 */
+            font-size: 15px;
+            /* 文字サイズ */
+            border-radius: 6px;
+            /* 角を丸く */
+            cursor: pointer;
+            /* マウスカーソルを指マークに */
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            /* アニメーション効果 */
+            margin-top: 10px;
+            /* ボタンの上の余白 */
+            margin-bottom: 10px;
+            /* ボタンの下の余白 */
+            font-weight: 500;
+            /* 文字の太さ */
+        }
+
+        button:hover:not(:disabled) {
+            /* ボタンが無効でない場合にマウスオーバーした時のスタイル */
+            opacity: 0.9;
+            /* 少し透明にする */
+        }
+
+        button:active:not(:disabled) {
+            /* ボタンが無効でない場合にクリックした瞬間のスタイル */
+            transform: scale(0.98);
+            /* 少し小さくするアニメーション */
+        }
+
+        button:disabled {
+            /* ボタンが無効化された時のスタイル */
+            background-color: #cccccc;
+            /* 背景色をグレーに */
+            cursor: not-allowed;
+            /* マウスカーソルを禁止マークに */
+        }
+
+        /* === 「物語を生成する」ボタン固有のスタイル === */
+        /* （共通ボタンスタイルを上書き・追加する形） */
+        button#generateButton {
+            background-color: #007bff;
+            /* 背景色を青系に */
+            padding: 12px 25px;
+            /* 共通ボタンより少し大きめの余白 */
+            font-size: 16px;
+            /* 共通ボタンより少し大きめの文字サイズ */
+        }
+
+        button#generateButton:hover:not(:disabled) {
+            background-color: #0056b3;
+            /* マウスオーバーで少し暗い青に */
+        }
+
+        /* === 「続きを生成」「物語を完結させる」ボタンのスタイル === */
+        .story-actions button {
+            background-color: #17a2b8;
+            /* 背景色を情報系の青緑色に */
+            margin-left: 5px;
+            /* ボタンの左の余白 */
+            margin-right: 5px;
+            /* ボタンの右の余白 */
+        }
+
+        .story-actions button:hover:not(:disabled) {
+            background-color: #138496;
+            /* マウスオーバーで少し暗い色に */
+        }
+
+        /* === 物語表示エリア (#resultArea) のスタイル === */
+        #resultArea {
+            margin-top: 25px;
+            /* 上の要素との間に余白 */
+            padding: 20px;
+            /* 内部の余白 */
+            border: 1px solid #e0e0e0;
+            /* 薄いグレーの境界線 */
+            border-radius: 8px;
+            /* 角を丸く */
+            background-color: #f9f9f9;
+            /* 薄い背景色 */
+            min-height: 150px;
+            /* 最低限の高さを確保 */
+            text-align: left;
+            /* テキストを左揃えに */
+            white-space: pre-wrap;
+            /* 改行や連続スペースをそのまま表示 */
+            font-size: 15px;
+            /* 基本の文字サイズ */
+        }
+
+        /* #resultArea 内の最初のp要素（通常はテーマ表示行）のスタイル */
+        #resultArea>p:first-of-type {
+            margin-top: 0;
+            /* 上の余白をなくす */
+            margin-bottom: 1em;
+            /* 下に1文字分の余白（テーマと本文の間） */
+            font-weight: bold;
+            /* テーマ行を太字に */
+        }
+
+        /* #resultArea 内の本文ブロック（divやpタグ）のスタイル */
+        #resultArea>div,
+        #resultArea>p {
+            /* pタグはテーマ表示行以外 */
+            margin-top: 0.5em;
+            /* 上の余白 */
+            margin-bottom: 0.5em;
+            /* 下の余白 */
+            line-height: 1.6;
+            /* 行の高さ */
+        }
+
+        /* Markdownから変換された太字(strong)のスタイル */
+        #resultArea strong {
+            color: #333;
+            /* 文字色 */
+            font-weight: bold;
+            /* 明示的に太字 */
+        }
+
+        /* Markdownから変換された見出し(h1-h6)のスタイル */
+        #resultArea h1,
+        #resultArea h2,
+        #resultArea h3,
+        #resultArea h4,
+        #resultArea h5,
+        #resultArea h6 {
+            color: #333;
+            /* 文字色 */
+            margin-top: 1.2em;
+            /* 上の余白 */
+            margin-bottom: 0.6em;
+            /* 下の余白 */
+            line-height: 1.3;
+            /* 行の高さ */
+            font-weight: bold;
+            /* 太字 */
+        }
+
+        #resultArea h1 {
+            font-size: 2em;
+        }
+
+        /* h1の文字サイズ */
+        #resultArea h2 {
+            font-size: 1.75em;
+        }
+
+        /* h2の文字サイズ */
+        #resultArea h3 {
+            font-size: 1.5em;
+        }
+
+        /* h3の文字サイズ */
+        /* Markdownから変換されたリスト(ul, ol, li)のスタイル */
+        #resultArea ul,
+        #resultArea ol {
+            margin-top: 0.5em;
+            /* リスト全体の上の余白 */
+            margin-bottom: 0.5em;
+            /* リスト全体の下の余白 */
+            padding-left: 1.5em;
+            /* リストの左側のインデント */
+        }
+
+        #resultArea li {
+            margin-bottom: 0.25em;
+            /* 各リストアイテムの下の余白 */
+        }
+
+        /* === 「続き・完結」ボタンのコンテナのスタイル === */
+        .story-actions {
+            margin-top: 15px;
+            /* 上の要素（結果表示エリア）との間に余白 */
+            text-align: center;
+            /* 中のボタンを中央揃え */
+            display: none;
+            /* 初期状態では非表示（物語生成後に表示） */
+        }
+
+        /* === ローディングインジケーターのスタイル === */
+        #loadingIndicator {
+            margin-top: 20px;
+            /* 上の要素との間に余白 */
+            color: #555;
+            /* 「生成中...」の文字色 */
+            display: none;
+            /* 初期状態では非表示 */
+            flex-direction: column;
+            /* 子要素（文字とスピナー）を縦に並べる */
+            align-items: center;
+            /* 水平方向中央揃え */
+        }
+
+        #loadingIndicator #loadingMessage {
+            /* 「生成中...」の文字部分 */
+            margin-bottom: 10px;
+            /* スピナーとの間に余白 */
+        }
+
+        .spinner {
+            /* ローディングスピナーのアニメーション */
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            /* スピナーの円の薄い部分 */
+            width: 36px;
+            /* スピナーの幅 */
+            height: 36px;
+            /* スピナーの高さ */
+            border-radius: 50%;
+            /* 完全な円にする */
+            border-left-color: #007bff;
+            /* 回転部分の色（青） */
+            animation: spin 1s ease infinite;
+            /* spinアニメーションを1秒間隔で無限に繰り返す */
+        }
+
+        @keyframes spin {
+
+            /* スピナーの回転アニメーション定義 */
+            0% {
+                transform: rotate(0deg);
+            }
+
+            /* 開始時0度 */
+            100% {
+                transform: rotate(360deg);
+            }
+
+            /* 終了時360度回転 */
+        }
+
+        /* === エラーメッセージ表示用のスタイル === */
+        .error-message {
+            color: #dc3545;
+            /* 文字色（赤系） */
+            background-color: #f8d7da;
+            /* 背景色（薄い赤系） */
+            border: 1px solid #f5c6cb;
+            /* 境界線（赤系） */
+            padding: 10px 15px;
+            /* 内部の余白 */
+            border-radius: 5px;
+            /* 角を丸く */
+            margin-top: 15px;
+            /* 上の要素との間に余白 */
+            white-space: pre-wrap;
+            /* 改行をそのまま表示 */
+            font-size: 14px;
+            /* 文字サイズ */
+            text-align: left;
+            /* テキストを左揃え */
+        }
+
+        .error-message p {
+            /* エラーメッセージ内のpタグ */
+            margin: 5px 0;
+            /* 上下の余白 */
+            color: #721c24;
+            /* 文字色（濃い赤系） */
+        }
+
+        .error-message small {
+            /* エラーメッセージ内のsmallタグ */
+            color: #721c24;
+            /* 文字色（濃い赤系） */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- メインコンテンツ表示エリア -->
+    <div class="container">
+        <h1>シャバナイ外伝ジェネレーター</h1>
+        <p>ボタンを押すとAIがランダムなテーマを生成し、そのテーマに沿って「シャバナイ」と「食」の要素を絡めた外伝を生成します。</p>
+
+        <!-- APIキー入力セクション -->
+        <div class="api-key-section">
+            <label for="apiKeyInput">Gemini APIキー:</label>
+            <div class="api-key-input-wrapper">
+                <input type="password" id="apiKeyInput" placeholder="ここにGemini APIキーを貼り付け">
+                <button id="pasteApiKeyButton" title="クリップボードから貼り付け">貼り付け</button>
+            </div>
+            <small>APIキーはGoogle AI Studioで取得できます。このキーはブラウザに保存されず、ページを離れると消えます。</small>
+        </div>
+
+        <p>使用モデル: <span id="modelName"></span></p>
+        <button id="generateButton">物語を生成する</button>
+
+        <!-- 物語表示エリア -->
+        <div id="resultArea">
+            <p>APIキーを入力後、ボタンを押すとここに生成された物語が表示されます。</p>
+        </div>
+
+        <!-- 物語アクションボタン（続き・完結） -->
+        <div id="storyActions" class="story-actions">
+            <button id="continueStoryButton">続きを生成</button>
+            <button id="completeStoryButton">物語を完結させる</button>
+        </div>
+
+        <!-- ローディング表示 -->
+        <div id="loadingIndicator">
+            <p id="loadingMessage">生成中...</p>
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <!-- JavaScriptコード -->
+    <script>
+        // HTMLドキュメントの読み込み完了後に実行される処理
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- HTML要素への参照を取得 ---
+            // これらはページ上の特定の要素をJavaScriptで操作するために必要
+            const generateButton = document.getElementById('generateButton');     // 「物語を生成する」ボタン
+            const resultArea = document.getElementById('resultArea');           // 物語やメッセージが表示されるエリア
+            const loadingIndicator = document.getElementById('loadingIndicator'); // 「生成中...」の表示とスピナーを含む要素
+            const loadingMessage = document.getElementById('loadingMessage');     // 「生成中...」のテキスト部分
+            const modelNameSpan = document.getElementById('modelName');         // 使用しているAIモデル名を表示する場所
+            const apiKeyInput = document.getElementById('apiKeyInput');           // ユーザーがAPIキーを入力するテキストフィールド
+            const pasteApiKeyButton = document.getElementById('pasteApiKeyButton'); // APIキーを貼り付けるボタン
+            const storyActionsDiv = document.getElementById('storyActions');      // 「続きを生成」「物語を完結させる」ボタンを囲むdiv要素
+            const continueStoryButton = document.getElementById('continueStoryButton'); // 「続きを生成」ボタン
+            const completeStoryButton = document.getElementById('completeStoryButton'); // 「物語を完結させる」ボタン
+
+            // --- 定数定義 ---
+            // プログラム全体で変わらない値を設定
+            const MODEL_NAME = 'gemini-2.0-flash'; // 使用するAIモデルの名前
+            const characterName = "シャバナイ";       // 物語の中心となるキャラクターの名前
+
+            // --- グローバル変数（状態管理用） ---
+            // プログラムの実行中に変化する可能性があり、複数の関数から参照される値
+            let currentStoryRawText = "";   // 現在生成・表示されている物語の生のテキスト（Markdown変換前）
+            // 「続きを生成」などのために、元のテキストを保持しておく
+            let currentGeneratedTheme = ""; // 現在の物語のベースとなっているAIが生成したテーマ
+            let previousThemes = [];        // AIが過去に生成したテーマをいくつか記憶しておく配列
+            // 次のテーマを生成する際に、これらと異なるものを促すために使用
+
+            // --- 初期設定 ---
+            // ページが読み込まれたときに、使用するAIモデル名をページ上に表示
+            if (modelNameSpan) { // modelNameSpan要素が存在する場合のみ処理
+                modelNameSpan.textContent = MODEL_NAME;
+            }
+
+            // --- イベントリスナー設定 ---
+
+            /**
+             * 「貼り付け」ボタンがクリックされたときの処理
+             * クリップボードにコピーされているテキストをAPIキー入力欄に貼り付ける。
+             * この機能は、ユーザーがブラウザにクリップボードへのアクセスを許可している場合のみ動作する。
+             */
+            if (pasteApiKeyButton) { // pasteApiKeyButton要素が存在する場合のみイベントリスナーを設定
+                pasteApiKeyButton.addEventListener('click', async () => {
+                    try {
+                        // navigator.clipboard.readText() は非同期処理なので await を使用
+                        if (navigator.clipboard && navigator.clipboard.readText) { // ブラウザがクリップボードAPIをサポートしているか確認
+                            const text = await navigator.clipboard.readText(); // クリップボードからテキストを読み込む
+                            apiKeyInput.value = text; // 読み込んだテキストを入力欄に設定
+                        } else {
+                            // サポートしていない、または許可がない場合はコンソールに警告
+                            console.warn('クリップボードの貼り付けに対応していないか、許可されていません。手動で入力してください。');
+                        }
+                    } catch (err) {
+                        // クリップボードからの読み取り中に何らかのエラーが発生した場合
+                        console.error('クリップボードからの読み取りに失敗しました:', err);
+                    }
+                });
+            }
+
+            /**
+             * Gemini API (GoogleのAIモデル) を呼び出すための共通関数。
+             * @param {string} apiKey - ユーザーが入力したGemini APIキー。
+             * @param {string} promptText - AIに送信する指示文（プロンプト）。
+             * @param {object} [generationConfig={ temperature: 0.7, maxOutputTokens: 200 }] - AIの生成動作を制御する設定。
+             *   - temperature: 出力のランダム性を調整（0に近いほど決定的、1に近いほど多様）。
+             *   - maxOutputTokens: 生成されるテキストの最大トークン数（文字数とは異なる）。
+             * @returns {Promise<object>} APIからの正常なレスポンス (JSON形式)。
+             * @throws {Error} APIリクエストが失敗した場合や、レスポンスの解析に失敗した場合にエラーを投げる。
+             */
+            async function callGeminiAPI(apiKey, promptText, generationConfig = { temperature: 0.7, maxOutputTokens: 200 }) {
+                // APIのエンドポイントURLを構築（モデル名とAPIキーを含む）
+                const API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
+                // APIに送信するリクエストボディを作成（プロンプトと生成設定を含む）
+                const requestBody = {
+                    "contents": [{
+                        "parts": [{
+                            "text": promptText
+                        }]
+                    }],
+                    "generationConfig": generationConfig
+                };
+
+                // fetch APIを使って、POSTリクエストをAPIエンドポイントに送信
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST', // HTTPメソッド
+                    headers: {
+                        'Content-Type': 'application/json', // リクエストボディの形式をJSONとして指定
+                    },
+                    body: JSON.stringify(requestBody) // JavaScriptオブジェクトをJSON文字列に変換
+                });
+
+                // APIからのレスポンスが正常かどうかを確認 (HTTPステータスコードが2xxでない場合)
+                if (!response.ok) {
+                    let errorData; // APIからのエラー詳細情報を格納する変数
+                    let errorMessageText = `APIリクエスト失敗。HTTPステータス: ${response.status}`; // 基本的なエラーメッセージ
+                    try {
+                        // エラーレスポンスもJSON形式で返ってくることがあるので、解析を試みる
+                        errorData = await response.json();
+                        if (errorData.error && errorData.error.message) { // APIが返す標準的なエラー形式の場合
+                            errorMessageText = `APIエラー: ${errorData.error.message}`;
+                            if (errorData.error.details) { // 詳細情報があれば追加
+                                errorMessageText += `\n詳細: ${JSON.stringify(errorData.error.details)}`;
+                            }
+                            // 特にAPIキーが無効な場合のエラーメッセージを分かりやすくする
+                            if (response.status === 400 && errorData.error && errorData.error.message.toLowerCase().includes("api key not valid")) {
+                                errorMessageText = `APIキーが無効か、間違っているようです。Google AI Studioで発行された正しいキーを入力してください。\n(詳細: ${errorData.error.message})`;
+                            }
+                        } else {
+                            // JSONではあるが、期待したエラー形式でない場合
+                            errorMessageText += ` - ${response.statusText}`;
+                        }
+                    } catch (e) {
+                        // エラーレスポンスがJSON形式でなかった場合（または別の解析エラー）
+                        errorMessageText += ` - ${response.statusText}. レスポンスボディの解析に失敗しました。`;
+                    }
+                    console.error('APIエラーレスポンス:', errorData || response); // 開発者コンソールにエラー詳細を出力
+                    throw new Error(errorMessageText); // カスタマイズされたエラーメッセージでエラーをスロー
+                }
+                // レスポンスが正常な場合、JSON形式で解析して返す
+                return await response.json();
+            }
+
+            /**
+             * Markdown形式のテキストを、表示用に簡単なHTMLタグに変換する関数。
+             * @param {string | null | undefined} markdownText - 変換するMarkdownテキスト。
+             * @returns {string} HTMLに変換された文字列。
+             */
+            function markdownToHtml(markdownText) {
+                if (!markdownText) return ""; // 入力がnullやundefinedなら空文字を返す
+                let htmlText = String(markdownText); // 安全のため文字列型に変換
+
+                // 太字 (**text** または __text__) を <strong>text</strong> に変換
+                // $1, $2 は正規表現のキャプチャグループを参照
+                htmlText = htmlText.replace(/\*\*(.*?)\*\*|__(.*?)__/g, '<strong>$1$2</strong>');
+
+                // 見出し (例: ## My Heading) を対応するHTMLタグ (例: <h2>My Heading</h2>) に変換
+                // gmフラグ: gはグローバルマッチ（複数箇所を置換）、mは複数行モード（^が各行頭にマッチ）
+                htmlText = htmlText.replace(/^######\s+(.*)/gm, '<h6>$1</h6>');
+                htmlText = htmlText.replace(/^#####\s+(.*)/gm, '<h5>$1</h5>');
+                htmlText = htmlText.replace(/^####\s+(.*)/gm, '<h4>$1</h4>');
+                htmlText = htmlText.replace(/^###\s+(.*)/gm, '<h3>$1</h3>');
+                htmlText = htmlText.replace(/^##\s+(.*)/gm, '<h2>$1</h2>');
+                htmlText = htmlText.replace(/^#\s+(.*)/gm, '<h1>$1</h1>');
+
+                // 簡単な箇条書きの処理 (- item, * item, + item を <li>item</li> に)
+                // 連続するリストアイテムを<ul>で囲む
+                const lines = htmlText.split('\n'); // テキストを行ごとに分割
+                let inList = false; // 現在リストアイテムを処理中かどうかのフラグ
+                htmlText = lines.map(line => { // 各行に対して処理
+                    const listItemMatch = line.match(/^(\s*[\-\+\*]\s+)(.*)/); // 行頭がリストマーカーか正規表現でチェック
+                    if (listItemMatch) { // リストアイテムの場合
+                        const itemText = listItemMatch[2]; // マーカーを除いた実際のアイテムテキスト
+                        if (!inList) { // リストの最初のアイテムの場合
+                            inList = true; // リスト処理中フラグを立てる
+                            return `<ul><li>${itemText}</li>`; // <ul>を開始して最初の<li>を追加
+                        }
+                        return `<li>${itemText}</li>`; // リスト中のアイテムは<li>のみ追加
+                    } else { // リストアイテムではない通常の行の場合
+                        if (inList) { // 直前までリストアイテムを処理していた場合
+                            inList = false; // リスト処理中フラグを下ろす
+                            return `</ul>${line}`; // </ul>でリストを閉じてから現在の行を追加
+                        }
+                        return line; // 通常の行はそのまま
+                    }
+                }).join('\n'); // 処理後の各行を改行で結合
+                if (inList) htmlText += '</ul>'; // テキストの最後がリストアイテムだった場合、</ul>を閉じる
+
+                return htmlText;
+            }
+
+            /**
+             * AIによって生成された物語（とテーマ）をウェブページ上に表示する関数。
+             * @param {string} theme - 物語のテーマ。
+             * @param {string} rawText - 表示する物語の生のテキスト（Markdown変換前）。
+             * @param {boolean} [isAppending=false] - trueの場合、既存の物語の末尾に追記する。falseの場合は新規表示。
+             */
+            function displayStory(theme, rawText, isAppending = false) {
+                // テーマと本文のテキストをMarkdownからHTMLに変換
+                const formattedTheme = markdownToHtml(theme);
+                const titleHTML = `<p><strong>テーマ: ${formattedTheme}</strong></p>`; // テーマ表示用のHTML文字列
+
+                // 本文の各段落（空行2つ以上で区切られる）を処理
+                const paragraphs = rawText.split(/\n{2,}/); // 2つ以上の連続改行で段落分割
+                let bodyHtml = ""; // 本文部分のHTMLを格納する変数
+                paragraphs.forEach(para => {
+                    if (para.trim() !== "") { // 空の段落は無視
+                        // 各段落をMarkdown変換
+                        const paraHtml = markdownToHtml(para.trim());
+                        // Markdown変換後が既に見出しタグやリストタグで始まっていない場合のみ<p>タグで囲む
+                        // これにより、AIが意図した見出しやリストの構造を壊さずに済む
+                        if (!paraHtml.match(/^<(h[1-6]|ul|ol|li)/i)) {
+                            bodyHtml += `<p>${paraHtml}</p>`;
+                        } else {
+                            bodyHtml += paraHtml; // 見出しやリストはそのまま使用
+                        }
+                    }
+                });
+
+                // HTML要素を作成して、変換後のHTMLを挿入
+                const newContentContainer = document.createElement('div'); // 本文を格納するためのコンテナdiv
+                newContentContainer.innerHTML = bodyHtml;
+
+                if (isAppending) { // 追記モードの場合
+                    currentStoryRawText += `\n\n${rawText}`; // 生テキストをグローバル変数に追記
+                    resultArea.appendChild(newContentContainer); // 表示エリアに新しいコンテナを追加
+                    // 以前は<br>を追加していたが、段落ごとのpタグとCSSマージンで自然な間隔を目指す
+                } else { // 新規表示モードの場合
+                    currentStoryRawText = rawText; // 生テキストをグローバル変数に設定
+                    resultArea.innerHTML = titleHTML; // 表示エリアをタイトルで初期化
+                    resultArea.appendChild(newContentContainer); // 本文コンテナを追加
+                }
+
+                // 「続き・完結」ボタンを表示エリアに表示
+                storyActionsDiv.style.display = 'block';
+                // 「物語を完結させる」ボタンを有効状態にする（続きが生成された後など）
+                completeStoryButton.disabled = false;
+            }
+
+            /**
+             * 「続きを生成」および「物語を完結させる」ボタンを無効化する。
+             * API通信中などに連続クリックを防ぐために使用。
+             */
+            function disableActionButtons() {
+                continueStoryButton.disabled = true;
+                completeStoryButton.disabled = true;
+            }
+            /**
+             * 「続きを生成」および「物語を完結させる」ボタンを有効化する。
+             * API通信完了後などに使用。
+             */
+            function enableActionButtons() {
+                continueStoryButton.disabled = false;
+                completeStoryButton.disabled = false;
+            }
+
+
+            /**
+             * 「物語を生成する」ボタンがクリックされたときのメイン処理。
+             * 非同期処理（async/await）でAPI呼び出しを行う。
+             */
+            generateButton.addEventListener('click', async () => {
+                // 1. APIキーの取得と、未入力の場合のエラー表示
+                const apiKey = apiKeyInput.value.trim(); // 入力値の前後の空白を除去
+                if (!apiKey) { // APIキーが空かチェック
+                    resultArea.innerHTML = `<div class="error-message"><p><strong>エラー: APIキーが入力されていません。</strong></p><p>上記の入力欄に、Google AI Studioで取得したGemini APIキーを入力してください。</p></div>`;
+                    resultArea.style.display = 'block'; // エラーメッセージ表示
+                    loadingIndicator.style.display = 'none'; // ローディング非表示
+                    storyActionsDiv.style.display = 'none';    // アクションボタン非表示
+                    return; // ここで処理を終了
+                }
+
+                // 2. UIを「処理中」の状態に更新
+                resultArea.innerHTML = `<p>AIが物語のテーマを生成しています...</p>`; // 最初のメッセージ
+                resultArea.style.display = 'block'; // 結果表示エリアを表示
+                loadingMessage.textContent = 'テーマを生成中...'; // ローディングメッセージ設定
+                loadingIndicator.style.display = 'flex'; // ローディング表示を有効化
+                generateButton.disabled = true;          // 「生成」ボタンを無効化（連続クリック防止）
+                storyActionsDiv.style.display = 'none';  // 「続き・完結」ボタンを非表示
+                disableActionButtons();                  // アクションボタンも無効化
+                currentStoryRawText = "";                // 新しい物語を生成するので、既存の物語テキストをクリア
+
+                // 3. API呼び出しと結果処理 (try...catch...finallyでエラーハンドリング)
+                try {
+                    // 3-1. AIにランダムなテーマを生成させる
+                    let themePromptAddition = ""; // 過去のテーマ情報をプロンプトに追加するための変数
+                    if (previousThemes.length > 0) { // 過去に生成したテーマがあれば
+                        // プロンプトに過去のテーマ例と、それらと異なるものを求める指示を追加
+                        themePromptAddition = `\n\n以前提案されたテーマの例： 「${previousThemes.join('」「')}」。これらとは異なる、新鮮でユニークなアイデアを期待します。`;
+                    }
+                    // テーマ生成用のプロンプト文字列
+                    const themePrompt = 
+`物語のテーマとして面白そうなものを、自身が自由に短いフレーズで一つだけ提案してください。
+形式は問いませんが、簡潔にお願いします。
+また、全く関係なさそうな言葉、テーマでも構いません。
+「共感」「AI」という単語は禁止します。${themePromptAddition}`;
+
+                    // テーマ生成API呼び出し (temperatureを高め(0.98)にして、より多様なテーマが出やすくする)
+                    const themeResponse = await callGeminiAPI(apiKey, themePrompt, { temperature: 0.98, maxOutputTokens: 50 });
+
+                    // APIレスポンスからテーマ文字列を抽出
+                    if (themeResponse.candidates && themeResponse.candidates[0]?.content?.parts?.[0]?.text) {
+                        currentGeneratedTheme = themeResponse.candidates[0].content.parts[0].text.trim().replace(/^「(.*?)」$/, '$1'); // 前後の「」があれば除去
+                        if (currentGeneratedTheme) { // テーマが正常に取得できたら
+                            // 過去テーマリストに現在のテーマを追加（重複を避ける）
+                            if (!previousThemes.includes(currentGeneratedTheme)) {
+                                previousThemes.push(currentGeneratedTheme);
+                            }
+                            // 過去テーマリストの保持数を制限（例: 直近5件まで）
+                            if (previousThemes.length > 15) {
+                                previousThemes.shift(); // 配列の先頭（最も古いテーマ）を削除
+                            }
+                        }
+                    } else {
+                        // テーマが期待通りに取得できなかった場合
+                        throw new Error('AIからのテーマ生成に失敗しました。レスポンス形式が予期したものではありません。');
+                    }
+                    if (!currentGeneratedTheme) { // テーマが空文字列だった場合
+                        throw new Error('AIによってテーマが生成されませんでした。');
+                    }
+
+                    // UI更新: 生成されたテーマを表示し、物語生成中のメッセージに切り替え
+                    const formattedCurrentGeneratedTheme = markdownToHtml(currentGeneratedTheme);
+                    resultArea.innerHTML = `<p><strong>生成されたテーマ:</strong> ${formattedCurrentGeneratedTheme}</p><p>このテーマで物語を生成しています...</p>`;
+                    loadingMessage.textContent = '物語を生成中...';
+
+                    // 3-2. 生成されたテーマで物語を生成する
+                    // 物語生成用のプロンプトを作成
+                    const storyPrompt = `
+以下の条件で、登場人物「${characterName}」が登場する物語を創作してください。
+
+AIが生成したテーマ: 「${currentGeneratedTheme}」
+
+物語の要件:
+0.  テーマからタイトルを新たに作り出してください。できれば「シャバナイ」という言葉をタイトルに入れてほしいです。物語の冒頭に大きく"【外伝】生成したタイトル"のように記載してください。
+1.  上記の「${currentGeneratedTheme}」を物語の主軸のアイデアの一つとしてください。基本的にはシャバナイがグルメを探求する外伝に、テーマを結びつけた物語、というイメージです。
+2.  登場人物「${characterName}」を主要なキャラクターとしてください。つまり、主人公はシャバナイです。
+3.  「食」に関連する要素を物語に含めてください。これは、${characterName}の食に対するこだわり（例：「シャバい」もしくは「シャバくない」食べ物への言及）、特定の食事シーン、食にまつわる出来事や思い出、あるいは食を通じた人間関係の変化など、様々な形で表現できます。
+4.  物語の雰囲気は、提供された参考テキストのような、日常と少しの不思議さが混在する雰囲気を意識してください。
+5.  出力は日本語の物語形式で、約800字から1500字程度でお願いします。
+6.  物語は、完結するように書かなくて問題ありません。面白そうであれば後から文章を追加するつもりです。
+7.  下記の参考テキストをよく読み込んで、${characterName}の性格、口調を理解してください。登場人物等の関係、出会い、その他の設定は、決して変更しないように注意してください。
+
+参考テキスト（${characterName}のキャラクター性、文体、物語の雰囲気の参考にしてください）：
+【怪談】おうちルール
+冬不純黄昏
+　シャバナイと出会ったのは、一度しか行っていないサークルの、まさにその一度のときだった。
+
+
+　つまり去年の春であり、大学一年目の春である。総合棟一階の大階段すぐ下で新入生たちを待ち受ける先輩方の勧誘はもう遠目から見る分にも暑苦しく、脂汗の染みたビラを受け取る気にはなれず、無料で肉が食えるBBQも魅力的に感じず、ようはそうした陽キャノリのサークルに馴染める気がしなかった。
+
+　しかし受験期に見ていたなんＪ大学生スレによると、「大学生はサークルに入るかなんなりして人と関わらないと終わる」、らしくて、何かしらのサークルには入らないといけないことは分かっていた。
+
+　できればおとなしめのサークルがいい。例えば、Twitterで見かけた、「キャンパス間バス同好会」など。「キャンパス間をつなぐバス 通称再履バスを愛でる」という活動内容は意味不明だが、月に数回ゆるく集まるだけで、飲み会もなさそうだし、会費も無い。
+　とはいえそうしたいわゆる「マイナーサークル」はどうも、どこも部員が少ないらしく、現所属部員たちもどこかとの兼部が基本らしい。そんなとき、ふと掲示板に貼られてあった手書きのビラが目に入った のが始まりだったと記憶している。青とオレンジのマーカーが多用されており、触るとペン特有のインクの感触がした。驚いたことに、手書きでビラを作っているようである。中身を見てみると、部員も多そうだし、かといってはっちゃけるような活動内容でもない。そこに行ってみることにした。
+
+　つまり、「おさんぽサークル」に。
+
+　今度の土曜日に一回集まってみようという機会があったので、まずはそこに参加して様子を見てみることにした。会費も無料なので、合わなければすぐ抜ければいい。
+　事前連絡も不要らしい。メアドを渡したりや名簿登録をしないでいいのも、好感が持てた。それなりに楽しみに、土曜日を待ったおぼえがある。
+
+　当日、近くの商店街入口に集合したのは６人で、内、俺を含める２人が新入生とのことだった。新入生の片割れが、シャバナイである。ぱっと見の印象は、一般的な大学生。といっても自分より社交的なのはなんとなく分かった。
+
+　商店街の店の多くが開く午前１０時まで少しあり、近くの公園で、会話を交わしたりして軽く交流しようということになった。先輩方からの質問も多かったが、次第に、自然に、同級生であるシャバナイとの会話にシフトした。当然だがシャバナイはのちに俺が付けたあだ名で、初対面のこの時は本名 上の名前に「くん」を付けて呼び合った。あまり会話内容は覚えていないが、それなりに気は合い LINE交換までいった。
+
+
+　１０時に近づくにつれ商店街に活気が出てくるのが分かり、ついに１０時になった。商店街は大きな屋根に覆われており、直射日光が防がれたことで歩きやすかった。「だから最初の散歩には最適なんだ」と先輩が言って、「なるほど」と思った。
+
+　散歩はそれなりに楽しく、「ここでならやっていけるかも」と思い始めてくる。個人経営の古本屋で、シャバナイと好きな漫画の話になって、シャバナイともどんどん仲良くなっているのを実感した。
+　ただ、「昼食にしよう」という時間になって、先輩たちはそこらへんの松屋に入ろうとしたときにシャバナイがそれを拒否した。そんなに語気は強くないのだが、「チェーン店ではなく せっかくならここらでおすすめの飯屋がいい」という旨のことを言った。結局、もう少し歩いて夫婦でやってる定食屋に入った。今思えば、「シャバナイのシャバナイたるゆえんだ」というカンジだ。
+
+　このとき定食屋で何定食を頼んだかも覚えていない。だが、それから後は忘れるわけもない。昼食の後、俺たちが「散歩」の先に向かったのは、商店街を抜けた先にあるベージュ色の建物だった。中に入ると、そこには笑顔の老人たちが規則正しく椅子に着いていた。
+
+
+　そこは、有料老人ホームらしかった。「おさんぽサークル」は社会に貢献する活動も行うのだろうか。別に行っても不思議ではないが、正直社会に貢献する活動に俺は興味がなかった。だが、たまにこうして徳を積む活動があっても就活の際に使えるかもしれない。よし決めた、大学４年間はこの「おさんぽサークル」と共にすることにしよう。
+
+　その決意は、すぐ崩れることになる。老人たちの話をだらだらと聞いた後しばらくして、施設を出て解散することとなった。長い散歩だったが、おおむね満足できる日だったと思っていると、施設から出る際、最初来たときにはなかった看板が、門の外に立てられていることに気付いた。
+
+　………………思い返したら、老人たちの話も、““そういう”” 内容が多かった。ようは、そこは、新興宗教の施設だった。
+
+「おさんぽサークル」は、大学に巣食う宗教勧誘集団だったのだ。
+
+
+　今となっても笑い話にはならない。帰宅後 パソコンを開いて宗教名を検索窓に打ち込むと、出る結果に良いものがない。
+
+　すぐにサークルのグループLINEを抜け、先輩方をブロックした。おかげで、入学後に増えた「友だち」欄が振り出しに戻ってしまった。……いや、一人だけ増えたまま、か。そう、シャバナイがいた。
+
+　我々は同胞を求めて魔窟に迷い込んだ無知で無垢で哀れな一回生である点において全く同じ立場、つまり被害者だ。そのよしみで、シャバナイにも、「おさんぽサークル」の正体をLINEで教えてやることにした。
+
+　検索して出たサイトのリンクをいくつか送り、「あのサークル どうも宗教勧誘系のとこで結構ヤバいらしいよ。今日行った施設もソレ関係らしい。」といった旨のメッセージを送り、だから自分はサークルから抜けることにする といった旨のメッセージも送った。
+
+「もし シャバナイ……コイツが既に宗教の毒に侵され済みならば、コイツもブロックせねばならない」と静かに誓い、LINEを閉じた。
+
+……
+
+　どうもその後 自分は寝てしまったらしく、次に目を覚ましたのは午後９時くらいだった、と思う。だるい体を起こし、遅めの晩飯を作った。そう、俺は入学を機に独り暮らしを始めたのだった。不出来な野菜炒めを箸で突きながら左手でスマホを操作、LINEを見ると、シャバナイからメッセージが来ていた。一言一句覚えているわけではないが、要約すると「マジかーじゃあオレもあのサークル辞めるかな～」みたいなことだ。
+
+　続けて、「じゃあ今度ボードゲーム研究会ってとこに仮入部してみようか考えてんねんけど、一緒にどう？」とシャバナイから来た。断る理由もないので、そうすることにした。一週間後、「ボードゲーム研究会」の部室にて再開した俺たちは、こうして、友人になった。
+
+
+　あいつは生物系の理系学部に属しており、年中忙しそうにしていたが、比較的早くに授業が終わる木曜日はよく部室に顔を出し、そのまま晩飯を一緒に食べることも多かった。
+　このとき、俺が安易にチェーン店や定番のラーメン屋に行こうとすると、シャバナイはよく「それはシャバいわ」と言って、別のところを提案した。どうも食にうるさく、特にゆっくりできる木曜日の夜は、飯に妥協したくないらしい。ただあまりにどの飯屋を俺が提案しても「それはシャバいわ」で一蹴するものだから、あるとき「じゃあお前がシャバくない飯屋に連れてってくれ」と言うと、実際に美味い飯屋を教えてくれて一緒に食べに行った。以来、毎回木曜夜、シャバナイの選ぶシャバくない飯屋に二人で食いに行った。これが、シャバナイの、シャバナイというあだ名の由来である。
+
+今日は、それから丁度一年経ったくらいだ。
+
+　生物系の学徒はこうも忙しいものなのか、学部２回生にしてシャバナイは学校に泊まり込みの実験をすることになった。暇な文系学生とはずいぶん違う。
+　俺は、一晩 家を空けることになってしまったシャバナイから頼まれごとをされてしまい、今 合鍵を握りながらあいつの家に向かっている。シャバナイもまたアパートでの独り暮らしらしいのは知っていたが、家に訪れたのは初めてだった。
+
+
+　別に友人の家に入りたがる性分でもないし、特に気にしたことはなかった。「そういえばシャバナイの家に来るのは初めてだな」とここで初めて気づく。
+
+　…………しかし……今回の「頼み事」は違和感を覚えるというか、聞いただけで奇妙なカンジのものだった。シャバナイの、俺への頼み事は「花に水をやってほしい」だ。……家を一晩空けるということで、「ペットを預かってほしい」なら分かるが、「花に水をやってほしい」とは一体どういうことなのか。
+
+　いくら大切に育てている花があるとしても、「晩に水をやるのを欠かせてはならない」なんてことがあるのだろうか。朝、家を出る前に水をやれば、それでいいではないか。
+
+
+　不思議に思いながら、俺はGoogleマップで共有されたところまでやって来た。ここの四階……４０２がシャバナイの住処ということだ。
+
+いつの間にか、空が灰をまき散らしたように曇っていることに、今、ふと気づいた。
+
+　４０２号室。貰った合鍵は、当然だがスッと挿し込まれた。
+
+そのときシャバナイの顔がなぜか思い浮かんだ。
+
+　そいうえば、あいつは俺にこの奇妙な頼み事をするときも、合鍵を渡すときも、どうも渋い顔をしていた。できれば誰にも頼みたくないものだったらしく、というかどうも、本当は誰も家に入れたくないようだ。今日みたいな用でもなければ俺を家に招くことは永劫なかっただろう。……そう思うと、少しムカついた。別に俺だってシャバナイの家に入りたかったわけではないが、友人なら家に誘ってくれてもよさそうなものだ。
+
+…………なにか、見られたくないモンでも、あんのか？
+
+　かちゃ。軽快に音を立ててその小綺麗なドアが開いた。俺の住むボロアパートとは大違い────な、なんだこのにおい……！ぐぁ、あ、鼻が潰れる！！
+
+　扉を開いた瞬間、強烈な、「かおり」が俺の鼻腔を襲った。……ようやく慣れてきた俺の鼻が、香りの正体に気付く。それは、甘い香りだった。トイレに置いている、ラベンダーとかの芳香剤。あれを１00個並べたような、強烈でわざとらしい、甘い香りだ！
+
+　……俺がよく分からないだけで、アロマとかなのかもしれない。シャバナイにそういう趣味があってもおかしくはない。……だとしたら申し訳ないが、こういう趣味は俺とは合いそうにない。
+
+　いいから、さっさと頼まれごとを済ますか。パチ、とスイッチを押すと瞬間に、真っ暗だった部屋にあかりが灯った。玄関と廊下の全貌が明らかになる。
+
+　まさか、コレか…？玄関入ってすぐ、靴をしまう棚の上に、植木鉢とそれに植わっている……枯れかけの白い花が、あった。その隣に、ゾウさん型のじょうろ。まさか、俺への頼み事というのは、これに水をやってくれということなのか。
+
+　とりあえず じょうろを持って、その枯れかけの白い花に水をそそいだ。きっとこの花が枯れてゆくのは、水のやり過ぎのためだと思った。
+
+　それにしても、さっきからくさい！！薬品っぽい芳香剤のニオイが、鼻の、粘膜にこびりつくようだ！！
+
+　くらくらするほどだ。人間がここで毎日過ごしているとは、とても思えない。ひたいから噴く汗をぬぐいながら、ちらりと周囲を見ると、ノートがあった。靴棚の上、植木鉢の隣のノッペリとした模様のようなものに見えていたそれは、ノートだった。薄いピンク色の大学ノート。題も所持者名も書いてない。
+
+　頼まれごと……水やりはもう済ませたのだし、この家から去ってしまうべきだと思えた。いつまでも、言ってしまえば「他人の家」をうろちょろするのも良くない。だけど、そのピンクのノートが気になった。
+
+なんも書いてない表紙を、めくることにした。めくる。
+
+『夕方の花の水やりを欠いてはならない』
+
+そう書いてあった。
+それだけが、表紙の次のページの、一行目に書かれてあった。
+
+　……いや、意味不明だ。なに？これは。なんで、花の水やりを、夕方に？
+　この白い花が、夕に水やりする必要のある特殊な花かなんか のようには見えない。
+
+　分からないうちに、次のページをめくってしまった。
+
+『白い靴を玄関に置いてはならない』
+
+　今度は少し大きな文字で書かれていた。意味不明だ。……「まさか」と思って靴棚を開けると、黒や紺ばかりで、確かに白い靴は無い。……ちょっと気になってしまい、俺が今履いている靴は何色だったか、目線を落として確認した。……良かった、黒だ。なにが良かったかは分からないが、そう思ってしまった。
+
+　次のページ。
+
+『スリッパを投げてはならない』
+
+なんだか急に、幼稚な内容になった。まるで子供に言い聞かせるような内容だ。スリッパ投げちゃダメって、当たり前だろ。
+
+……ここまで、全て、１ページに一行ずつしか書かれていない。
+
+『チラシを６枚以上貯めてはならない』
+
+『かぼちゃを暗所に置いてはならない』
+
+『床に油を撒いてはならない』
+
+『殺虫剤を冷蔵庫の半径２メートル以内に近づけてはならない』
+
+『緑色の包装紙をしたトイレットペーパーは置いてはならない』
+
+『縦に皿を積んではならない』
+
+　全て意味は分からないが、分かった。ここに書いてあることは、この家の、「おうちルール」だ。ほら友達の家によって「夜１０時以降は電話してはいけない」とかあっただろう。この奇妙なルールたちも、どうも同様らしい。……しかし……まさかシャバナイは、毎日こんな妙ちくりんなルールを家で守っているのか……。
+
+『口にものを含んだままトイレの電気をつけてはならない』
+
+『東の部屋で寝てはならない』
+
+『午前３時５９分に窓の外を見てはならない』
+
+　なんとなく分かったことが、もうひとつある。このノートに書かれているルールは、後ろのページほど、奥の部屋のルールのようだ。だから最初のルールが、玄関に関することだったのか。
+
+　改めて、部屋を見渡す。意図の分からないものがいくらか散らばっているのだが、それが「おうちルール」と関係していることはもう推測できた。
+　西の部屋には、絨毯の上に本が３冊落ちている。廊下には、ガムテープが張られて星型を描いている。たぶん、これらの全てが、「おうちルール」と関係しているのだろう。
+
+　北の部屋……最も奥の部屋の、扉が開いている。近づくと、ラベンダーの芳香剤のにおいがグンと強くなった。
+
+　北の部屋に関するルールなら、ノートのページも後ろの方だろう。そう考えてばらばらとページをめくると、おどろいたことに全てのページにルールが載せられてあった。１ページ、ひとつずつ。
+
+　じゃあいっそ最後のページまで飛ばそうと、大きくノートの側面を掴んで、ガッと最後のページをひろげる。
+
+『一番北の部屋を空けてはいけない』
+
+　一番大きな文字に、少したじろぐ。が、すぐに冷静が戻ってくる。この文章に向き合ってみる。『一番北の部屋を空けてはいけない』……この号室の一番北の部屋といえば、やはり一番奥の部屋だ。にしても、「空けて」？「開けて」ならまだ分かるが、「空けて」は誤字ではないのか。
+
+　というか、北の部屋……扉、開いてるし。
+
+　なんで今気づいたんだろう。ラベンダーの強烈なかおりは、北の部屋から生まれているみたいだ。
+
+『一番北の部屋を空けてはいけない』
+
+　「開けて」も別によくて、やはり「空けて」はダメなのか。でも、俺が来るさっきまで、そもそも家に人がいなかったんだから、部屋は空いていることになる。
+
+　この奇妙な矛盾が、妙に気になって、俺は一歩北の部屋に近づいた。ツンとラベンダーのかおりが強くなる。それに混じって、別のにおいがあるのに気づいた。
+
+　まるで、このニオイを隠すために、ラベンダーをかおらせているみたいではないか。
+
+『一番北の部屋を空けてはいけない』
+
+　ニオイを我慢しながら、身を乗り出して、北の部屋をぐるりと見渡してみた。芳香剤もアロマも、どこにも見当たらない。学習机、椅子、寝具に本棚……いたって普通だ。
+
+　胸を撫で下ろす自分がいた。よかった。
+……もし『一番北の部屋を空けてはいけない』が、「一番北の部屋には常に人が居ないといけない」という意味ならば、もしかするとこの部屋に、俺以外のだれかが居るのかと思った。今この時も。
+
+『一番北の部屋を空けてはいけない』
+
+……あれ？おかしいな。だとすると、シャバナイは今、「おうちルール」を破っていることになる。
+
+　でも、そもそもこれは どうやっても守れないルールなのだから。……常に部屋を空けないなんて、無理なのだ。
+
+『一番北の部屋を空けてはいけない』
+
+　もう、この奇妙な家から出るとしよう。そんで、次 シャバナイに会った時、この変な「おうちルール」について問い詰めてやる。
+
+　帰り道を確認するために、地図アプリを開く。右上に、小さなコンパスマークが表示されている。…………それは……正十字を示していなかった。少し斜めっている。そうか、あの、さっきの部屋は、厳密には「北の部屋」ではなく、「北北東の部屋」だったらしい。
+
+　「北北東の部屋」の左隣には、壁を隔てて、風呂場があった。だから、方角の微妙なズレを考慮すれば、この４０２号室において、最も北に近い部屋は…………
+
+『一番北の部屋を空けてはいけない』
+
+　風呂場だ。
+
+　換気扇がつけっぱなしになっている。
+
+　「北北東の部屋」から出て、風呂場に近づくと、ラベンダーではない方のニオイが、強くなった。
+
+　パチ。電気をつける。
+
+　押すタイプの扉を開ける。
+
+　そして、俺はシャバナイが、「おうちルール」を決して破ってはないことを知った。彼は、厳格にルールを守っている。
+　『一番北の部屋を空けてはならない』。「一番北の部屋には常に人間が居なくてはならない」。
+
+　だから、  つまり、  どうやら、  どうも、  その、  人間が居ればそれでいいわけで、  その人間は、  ルールによれば、 別に、
+…………生きているものでなくても、構わないらしい`;
+
+                    // 物語生成API呼び出し (temperatureはテーマ生成より少し下げて、安定性を重視)
+                    const storyResponse = await callGeminiAPI(apiKey, storyPrompt, { temperature: 0.85, maxOutputTokens: 4000 });
+
+                    // 5. 物語生成結果の処理と表示
+                    if (storyResponse.candidates && storyResponse.candidates[0]?.content?.parts?.[0]?.text) {
+                        const generatedText = storyResponse.candidates[0].content.parts[0].text.trim();
+                        displayStory(currentGeneratedTheme, generatedText); // 初回表示
+                        // APIからの終了理由をチェックし、もし最大トークン数などで途切れていたら補足情報を表示
+                        if (storyResponse.candidates[0].finishReason && storyResponse.candidates[0].finishReason !== 'STOP') {
+                            resultArea.innerHTML += `<p><small>補足: 生成は途中で終了しました (理由: ${storyResponse.candidates[0].finishReason})</small></p>`;
+                        }
+                    } else {
+                        throw new Error('AIからの物語生成に失敗しました。レスポンス形式が予期したものではありません。');
+                    }
+
+                } catch (error) {
+                    // 6. エラーハンドリング: tryブロック内で発生したエラーをここで捕捉
+                    console.error('処理中にエラーが発生しました:', error); // 開発者コンソールにエラー詳細を出力
+                    // ユーザー向けのエラーメッセージを表示エリアに表示
+                    resultArea.innerHTML = `<div class="error-message"><p><strong>エラーが発生しました:</strong></p><p>${error.message || '不明なエラーが発生しました。'}</p><p><small>APIキー、モデル名(${MODEL_NAME})、ネットワーク接続、API利用上限等を確認してください。</small></p></div>`;
+                } finally {
+                    // 7. UIを通常状態に戻す (成功してもエラーでも最後に必ず実行)
+                    loadingIndicator.style.display = 'none'; // ローディングインジケーター非表示
+                    generateButton.disabled = false;          // 「生成」ボタンを再度有効化
+                    if (currentStoryRawText) enableActionButtons(); // 物語が生成されていればアクションボタン有効化
+                }
+            }); // 「物語を生成する」ボタンのイベントリスナー終了
+
+            /**
+             * 「続きを生成」または「物語を完結させる」ボタンがクリックされたときの処理。
+             * @param {string} apiKey - ユーザーが入力したAPIキー。
+             * @param {'continue' | 'complete'} type - 'continue'なら続きを、'complete'なら完結部分を生成。
+             */
+            async function handleStoryContinuation(apiKey, type) {
+                // 前提条件: 元となる物語とテーマが存在するかチェック
+                if (!currentStoryRawText || !currentGeneratedTheme) {
+                    resultArea.innerHTML += `<div class="error-message"><p>元の物語やテーマが見つかりません。再度物語を生成してください。</p></div>`;
+                    return;
+                }
+
+                // UIを「処理中」の状態に更新
+                loadingMessage.textContent = type === 'continue' ? '続きを生成中...' : '物語を完結中...';
+                loadingIndicator.style.display = 'flex';
+                disableActionButtons();    // 「続き・完結」ボタンを無効化
+                generateButton.disabled = true; // 「生成」ボタンも無効化
+
+                // AIへのプロンプトを作成
+                let continuationPrompt = "";
+                const commonInstruction = "前の段落とのつながりを意識し、必要であれば空行を挟んで自然な段落区切りで記述してください。物語ですので、矛盾の無いように注意してください。"; // 共通の指示
+
+                if (type === 'continue') { // 「続きを生成」の場合のプロンプト
+                    continuationPrompt = `
+以下の物語の続きを、自然な流れで創作してください。
+テーマは「${currentGeneratedTheme}」です。
+登場人物「${characterName}」の個性や、「食」に関する要素も引き続き意識してください。
+物語の雰囲気は元のテキストを引き継いでください。約500～1000字程度でお願いします。
+完結はさせないでください。
+${commonInstruction}
+
+【これまでの物語】
+${currentStoryRawText}
+
+【続き】`;
+                } else { // type === 'complete' （「物語を完結させる」の場合）のプロンプト
+                    continuationPrompt = `
+以下の物語を、テーマ「${currentGeneratedTheme}」を踏まえつつ、自然な形で完結させてください。
+登場人物「${characterName}」の個性や、「食」に関する要素も考慮し、読者に余韻を残すような結末が望ましいです。
+必要であれば、これまでの展開を踏まえて結末を創作してください。約500～1000字程度でお願いします。
+また、完結したことが明確にわかるようにしてください。
+${commonInstruction}
+
+【これまでの物語】
+${currentStoryRawText}
+
+【完結部分】`;
+                }
+
+                try {
+                    // API呼び出し (temperatureは少し下げて、文脈に沿った出力を期待)
+                    const response = await callGeminiAPI(apiKey, continuationPrompt, { temperature: 0.8, maxOutputTokens: 2000 });
+                    // レスポンス処理と表示
+                    if (response.candidates && response.candidates[0]?.content?.parts?.[0]?.text) {
+                        const additionalText = response.candidates[0].content.parts[0].text.trim();
+                        displayStory(currentGeneratedTheme, additionalText, true); // true を渡して追記モードで表示
+                        if (type === 'complete') { // 物語を完結させた場合
+                            storyActionsDiv.style.display = 'none'; // 「続き・完結」ボタンのコンテナを非表示にする
+                        }
+                        // APIからの終了理由をチェック
+                        if (response.candidates[0].finishReason && response.candidates[0].finishReason !== 'STOP') {
+                            resultArea.innerHTML += `<p><small>補足: 生成は途中で終了しました (理由: ${response.candidates[0].finishReason})</small></p>`;
+                        }
+                    } else {
+                        throw new Error(`AIからの${type === 'continue' ? '続き' : '完結部分'}の生成に失敗しました。`);
+                    }
+                } catch (error) {
+                    // エラーハンドリング
+                    console.error(`${type}処理中にエラー:`, error);
+                    resultArea.innerHTML += `<div class="error-message"><p><strong>${type === 'continue' ? '続き' : '完結部分'}の生成に失敗しました:</strong> ${error.message}</p></div>`;
+                } finally {
+                    // UIを通常状態に戻す
+                    loadingIndicator.style.display = 'none';
+                    generateButton.disabled = false;
+                    // 「完結」処理でなければ、かつ物語が存在すればアクションボタンを再度有効化
+                    if (type !== 'complete' && currentStoryRawText) {
+                        enableActionButtons();
+                    } else if (type === 'complete') {
+                        // 完結時は storyActionsDiv が非表示になるので、ボタンの状態はあまり影響しないが、念のため無効化
+                        disableActionButtons();
+                    }
+                }
+            } // handleStoryContinuation 関数終了
+
+            // 「続きを生成」ボタンのクリックイベントリスナー
+            continueStoryButton.addEventListener('click', () => {
+                const apiKey = apiKeyInput.value.trim();
+                if (!apiKey) { // APIキーが未入力ならアラート
+                    alert('APIキーを入力してください。');
+                    return;
+                }
+                handleStoryContinuation(apiKey, 'continue'); // 続き生成処理を呼び出し
+            });
+
+            // 「物語を完結させる」ボタンのクリックイベントリスナー
+            completeStoryButton.addEventListener('click', () => {
+                const apiKey = apiKeyInput.value.trim();
+                if (!apiKey) { // APIキーが未入力ならアラート
+                    alert('APIキーを入力してください。');
+                    return;
+                }
+                handleStoryContinuation(apiKey, 'complete'); // 完結処理を呼び出し
+            });
+
+        }); // DOMContentLoaded イベントリスナー終了
+    </script>
+</body>
+
+</html>
